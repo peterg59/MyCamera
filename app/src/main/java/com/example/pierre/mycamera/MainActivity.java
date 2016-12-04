@@ -45,20 +45,19 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
     private static final int REQUEST_IMAGE_CAPTURE = 1;
     private File photoFile;
     private Uri photoURI; //the Uri for the captured image
-    private String mCurrentPhotoPath;
+    private String mCurrentPhotoPath, text;
     private ImageView mImageView;
     private Canvas canvas;
     private Paint paint;
     private float downx = 0, downy = 0, upx = 0, upy = 0;
-    private String distanceLine;
-    private EditText editText;
+    private EditText mDialogInput;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mImageView = (ImageView) findViewById(R.id.picture);
-        editText = (EditText) findViewById(R.id.editText);
+        //editText = (EditText) findViewById(R.id.editText);
     }
 
     @Override
@@ -190,13 +189,9 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
                 //Getting the coordinates of the line's top
                 upx = event.getX();
                 upy = event.getY();
-                //We draw the line thanks to the coordinates and the Paint object
-                canvas.drawLine(downx, downy, upx, upy, paint);
-                // We draw double-ended arrows at each end of the line
-                fillArrow(canvas, downx, downy, upx, upy);
-                // We add the dimension of the line
-                insertText(downx, downy, upx, upy, paint);
-                mImageView.invalidate();
+                // We add the dimension of the line by calling an AlertDialog
+                showDialog();
+
                 break;
             case MotionEvent.ACTION_MOVE:
                 break;
@@ -261,13 +256,13 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         canvas.drawPath(path2, paint);
     }
 
-    public void insertText(float startX, float startY, float stopX, float stopY, Paint paint) {
+    public void insertText(float startX, float startY, float stopX, float stopY, String distanceLine, Paint paint) {
         float deltaX = stopX - startX;
         float deltaY = stopY - startY;
         float x = startX + deltaX / 2;
         float y = startY + deltaY / 2;
         // Getting the dimension from the EditText object
-        distanceLine = editText.getText().toString();
+        //distanceLine = editText.getText().toString();
         // Draw the text on the coordinates taken
         canvas.drawText(distanceLine + "cm", x, y, paint);
     }
@@ -285,5 +280,26 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         //resized the Bitmap wanted
         Bitmap resizedBitmap = Bitmap.createBitmap(bm, 0, 0, width, height, matrix, false);
         return resizedBitmap;
+    }
+    public void showDialog() {
+        mDialogInput = new EditText(this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Please enter a dimension")
+                .setCancelable(true)
+                .setView(mDialogInput)
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        text = mDialogInput.getText().toString();
+                        //We draw the line thanks to the coordinates and the Paint object
+                        canvas.drawLine(downx, downy, upx, upy, paint);
+                        // We draw double-ended arrows at each end of the line
+                        fillArrow(canvas, downx, downy, upx, upy);
+                        // Draw the text corresponding to the line's dimension
+                        insertText(downx, downy, upx, upy, text, paint);
+                        mImageView.invalidate();
+                    }
+                }).setNegativeButton("Cancel", null)
+                .create().show();
     }
 }
