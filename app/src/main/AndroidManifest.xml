@@ -2,8 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.pierre.mycamera">
 
+    <!-- Tell Google Play that your phone must have a camera. -->
     <uses-feature android:name="android.hardware.camera"
         android:required="true" />
+    <!-- Permission to access External Storage is required in order to save files. -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="18" />
 
@@ -23,6 +25,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <!-- FileProvider allow applications to share files with others.
+        This is essential for the camera app to save the taken picture. -->
+        <!-- Please replace the value under android:authorities by your own application package
+        followed by ".fileprovider" -->
         <provider
             android:name="android.support.v4.content.FileProvider"
             android:authorities="com.example.pierre.mycamera.fileprovider"
